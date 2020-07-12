@@ -1,6 +1,28 @@
 %!TEX TS-program = xelatex
 %!TEX encoding = UTF-8 Unicode
 %!TEX root = 2020-GS-ARTICLE.tex
+\newcommand{\mylanguages}{italian} % in reverse order
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%	TITLE
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\newcommand{\mytitle}{Corso di laurea in Musica Applicata}
+\newcommand{\mysubtitle}{Corso di Sistemi, Tecnologie, Applicazioni e Linguaggi
+di Programmazione\\
+A.A. 2019-20}
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%	AUTHORS
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+\newcommand{\authorone}{Davide Croci}
+\newcommand{\institutione}{Conservatorio \emph{G. Nicolini} - Piacenza}
+\newcommand{\emailone}{davide.croci@conservatorio.piacenza.it}
+%-------------------------------------------------------------------------------
+% \newcommand{\authortwo}{Wikio Orgopedio}
+% \newcommand{\institutiontwo}{Conservatorio S. Cecilia di Roma}
+% \newcommand{\emailtwo}{wikio @ orgopedio.com} % duplicate these 3 lines if more
 %-------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------
 %	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
@@ -12,7 +34,7 @@
 	]{article}
 %--------------------------------------------------------------- GENERAL SETUP -
 \usepackage[T1]{fontenc}
-\usepackage[english]{babel}
+\usepackage[\mylanguages]{babel}
 \usepackage{
   graphicx,
   dblfloatfix
@@ -41,177 +63,329 @@
 \thispagestyle{empty}
 %-------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------
-\section*{UNNUMBERED SECTION}
-Some predictions of general relativity differ significantly from those of
-classical physics, especially concerning the passage of time, the geometry of
-space, the motion of bodies in free fall, and the propagation of light. Examples
-of such differences include gravitational time dilation, gravitational lensing,
-the gravitational redshift of light, and the gravitational time delay. The
-predictions of general relativity in relation to classical physics have been
-confirmed in all observations and experiments to date. Although general
-relativity is not the only relativistic theory of gravity, it is the simplest
-theory that is consistent with experimental data. However, unanswered questions
-remain, the most fundamental being how general relativity can be reconciled with
-the laws of quantum physics to produce a complete and self-consistent theory of
-quantum gravity.
-%-------------------------------------------------------------------------------
-\subsection*{UNNUMBERED SUB-SECTION}
-Einstein's theory has important astrophysical implications. For example, it
-implies the existence of black holes regions of space in which space and time
-are distorted in such a way that nothing, not even light, can escape as an
-end state for massive stars. There is ample evidence that the intense radiation
-emitted by certain kinds of astronomical objects is due to black holes. For
-example, microquasars and active galactic nuclei result from the presence of
-stellar black holes and supermassive black holes, respectively. The bending of
-light by gravity can lead to the phenomenon of gravitational lensing, in which
-multiple images of the same distant astronomical object are visible in the sky.
-General relativity also predicts the existence of gravitational waves, which
-have since been observed directly by the physics collaboration LIGO. In addition,
-general relativity is the basis of current cosmological models of a consistently
-expanding universe.
-%-------------------------------------------------------------------------------
-\subsubsection*{UNNUMBERED SUB-SUB-SECTION}
-Some predictions of general relativity differ significantly from those of
-classical physics, especially concerning the passage of time, the geometry of
-space, the motion of bodies in free fall, and the propagation of light. Examples
-of such differences include gravitational time dilation, gravitational lensing,
-the gravitational redshift of light, and the gravitational time delay. The
-predictions of general relativity in relation to classical physics have been
-confirmed in all observations and experiments to date. Although general
-relativity is not the only relativistic theory of gravity, it is the simplest
-theory that is consistent with experimental data. However, unanswered questions
-remain, the most fundamental being how general relativity can be reconciled with
-the laws of quantum physics to produce a complete and self-consistent theory of
-quantum gravity.
+\section*{INTRODUZIONE}
 
-Einstein's theory has important astrophysical implications. For example, it
-implies the existence of black holes regions of space in which space and time
-are distorted in such a way that nothing, not even light, can escape as an
-end state for massive stars. There is ample evidence that the intense radiation
-emitted by certain kinds of astronomical objects is due to black holes. For
-example, microquasars and active galactic nuclei result from the presence of
-stellar black holes and supermassive black holes\ldots
+L’obiettivo del corso era la creazione di un sintetizzatore virtuale accessibile
+online, con opzione di utilizzo su varie piattaforme, sia tramite sito web che
+su diverse piattaforme, in modo che fosse utilizzabile anche offline. In
+aggiunta l'idea di approfondire nuove possibilità di analisi sonora e il poter
+mettere in pratica programmando fisicamente in linguaggi macchina nozioni
+teoriche apprese in altri corsi si è rivelata, almeno per quel che riguarda il
+sottoscritto, uno stimolo aggiuntivo all'apprendimento di nuove nozioni. Il
+pensiero iniziale era quello di partire da un modello proposto, poi
+trasformatosi in proposta di resa modulare con utilizzo di singoli moduli
+preesistenti. Il limite dei corsisti, essendo iscritti ad un corso di Musica
+Applicata e non di Musica Elettronica pura, è la quasi totale assenza di
+background per quanto riguarda i linguaggi di programmazione, e l'appoggiarsi a
+modelli di riferimento già esistenti era necessaria e si è rivelata una mossa
+vincente.
+Alla fine il risultato ha preso il nome di "Superstereo Synth", e la metodologia
+scelta per la sua realizzazione è stata la programmazione in linguaggio Faust
+\cite{faust}. La tecnologia individuata è una sintesi sottrattiva modulata
+da phaser.
+
+\section*{Descrizione interfaccia grafica}
+
+Modulo di generazione sonora:
+- switch saw/noise per selezione forma d’onda di partenza
+- knob Fcut per filtro di taglio 0/1
+- knob Q  per determinare la larghezza di banda 0,7/25
+- knob Gain -96/+12
+
+Modulo di phasing
+- switch Bypass per attivare/disattivare l’effetto
+- knob Lfo per frequenza dell’onda modulante 0/16
+- knob Feedback per retroazione con coefficienti -1/1
+- knob Delay degli allpass 1/100
+
+Modulo master
+- knob Pan L-R  -45/+45
+- slider Volume (in dB) -70/0
+- switch Mute on/off
+- n.2 meters per visualizzazione livello di uscita Left e Right
 
 
-\vfill\null
+\section*{Descrizione dei processi audio}
 
-\begin{figure}[b]
+Il processo di elaborazione audio viene quindi ad essere, come già accennato,
+una sintesi sottrattiva modulata da phaser e con un modulo di gestione di base
+dell'uscita del segnale (Pan, Volume, Mute, Meters)
+
+\begin{figure}[b]%b=bottom,t=top, h=here
 \begin{center}
-\includegraphics[width=.47\textwidth]{img/image1.png}
-\caption{\textbf{Spacetime curvature schematic}. Lattice analogy of the deformation
-of spacetime caused by a planetary mass.}
-\label{gr01}
+\includegraphics[width=.47\textwidth]{img/process.pdf}
+\caption{\textbf{Process}. descrizione.}
+\label{process}
 \end{center}
 \end{figure}
 
-\newpage % USE NEWPAGE TO FORCE COLUMNN INTERRUPTION
+
+Sintesi sottrattiva saw/noise
+
+E’ un modello di sintesi nella quale una sorgente sonora, ricca di armoniche
+(parziali), viene ad essere modificata da un punto di vista spettrale,
+sottraendo opportunamente da essa bande di frequenze o singole parziali. La
+sintesi sottrattiva altera il bilanciamento spettrale di un segnale: questa
+tecnica dà i migliori risultati quando viene applicata a segnali dotati di uno
+spettro molto ricco di armoniche, come quelli prodotti da generatori di rumore
+o di impulsi. Questo procedimento è il più utilizzato per la produzione di
+timbri nell'elettronica analogica, tanto che molti effetti tipici della sintesi
+sottrattiva sono diventati sinonimo stesso di musica elettronica. Il principio
+su cui si basa questa sintesi è quello di un oscillatore che genera delle forme
+d'onda che abbiano già una propria conformazione armonica: un generatore di
+rumore produce uno spettro distribuito a larga banda, un generatore di impulsi
+produce invece una forma d’onda periodica ad una frequenza specifica che
+possiede una grande quantità di energia nelle sue armoniche. In questo caso
+tramite uno switch abbiamo la possibilità di scegliere tra un’onda saw (dente
+di sega) e un generatore di rumore grigio.
+Gli aspetti più interessanti della sintesi sottrattiva vengono evidenziati
+attraverso un processo dinamico, ovvero quando questa operazione di filtraggio
+si sviluppa durante l’evoluzione temporale del segnale.
+
+Filtro di taglio Fcut
+Un filtro modifica le caratteristiche spettrali dei suoni eliminando le
+parziali indesiderate in un segnale o “modellando” il suo spettro; un filtro
+modifica quindi l’ampiezza e la fase di un segnale che passi attraverso di esso,
+senza alterare la frequenza di alcuna componente spettrale sel segnale stesso.
+Tramite un filtro, quindi, vengono selezionate soltanto alcune delle componenti
+di queste forme d'onda e le altre vengono escluse. Nell'analogico il
+procedimento è abbastanza semplice; l'uscita dell'oscillatore viene inviata
+all'ingresso di un filtro che in base alla frequenza di taglio seleziona una
+determinata gamma di frequenze. Applicando un generatore di funzioni al filtro
+otterremo una variazione continua delle frequenze selezionate. Questo
+procedimento, molto empirico, ha il pregio di creare una variazione continua
+dello spettro, cosa che è alla base della creazione dei suoni "sintetici".
+Nel nostro caso abbiamo un filtro passa banda (band-pass filter), ovvero un
+filtro che taglia sia frequenze alte che basse; la frequenza di taglio è
+definita come la frequenza alla quale l’energia trasmessa dal filtro diminuisce
+di metà (-3 dB) rispetto alla massima energia trasmessa dalla banda passante.
+Essendo un filtro di tipo digitale, la Fc o Fcut è data dalla media aritmetica
+della frequenza di taglio superiore ed inferiore.
+
+Larghezza di banda Q
+La larghezza di banda è una misura della selettività del filtro ed è uguale
+alla differenza tra frequenza di taglio superiore ed inferiore; la selettività
+del filtro passabanda è quantificata per mezzo di un fattore di qualità (o
+fattore di merito) Q. Un alto Q denota una banda stretta, un basso Q una banda
+larga; la selettività di un filtro è scelta in funzione al tipo di applicazione
+per il quale esso dovrà operare (per es. un filtro passabanda con una
+strettissima larchezza di banda può essere usato per estrarre da un segnale
+audio una specifica componente in frequenza, ovvero una parziale).
+
+Gain
+Con il gain ovviamente andiamo a definire il volume di partenza della forma
+d’onda.
+
+
+Modulo di phasing
+
+Il phasing è un processo modulativo che parte duplicando una forma d'onda di
+partenza, ottenendo due segnali identici per intensità, frequenza e fase,
+quindi un segnale doppio; nel caso in cui la fase di uno dei due segnali sia
+invertita, si ha la cosiddetta controfase, in cui la somma dei segnali dà zero.
+L'effetto di phaser si ottiene duplicando il segnale originale e ritardando
+leggermente la copia; sommando le due forme d'onda si ottiene un effetto di
+rotazione dovuto al fatto che i due segnali si trovano a volte in fase e a
+volte fuori fase; questo effetto, denominato "phase shifter" è alla base del
+funzionamento del phaser. Qui è usato un filtro all-pass, che, contrariamente
+agli altri filtri, non elimina frequenze ma varia la fase del segnale audio
+modificando le relazioni di fase tra le varie frequenze, secondo il modello di
+\cite{cr1996cmt}.
+
+\begin{figure}[b]%b=bottom,t=top, h=here
+\begin{center}
+\includegraphics[width=.47\textwidth]{img/phaser.pdf}
+\caption{\textbf{Phaser}. descrizione.}
+\label{phas}
+\end{center}
+\end{figure}
+
+Bypass
+E' un pulsante che ovviamente permette di bypassare l'effetto per avere un
+ascolto depurato dall'effetto phaser.
+
+Lfo
+Sigla di Low Frequency oscillator, è un generatore di forme d'onda a frequenza
+infrasonica, con funzione di modulatore d'effetti. In questo caso serve a
+modulare l'effetto per poi sommarlo al segnale originale.
+
+Feedback
+Determina la quantità di suono "filtrato" (ovvero cambiato di fase e
+ritardato nel tempo) che ritorna al filtro stesso per essere ritardato
+nuovamente; in pratica aumenta l'effetto uditivo del phaser rendendolo
+molto più evidente.
+
+Delay
+Regola lo sfasamento temporale della fase opposta alla forma d'onda originale.
+
+%\vfill\null
+
+
+
+\subsubsection*{DESCRIZIONE DEL CODICE}
+
+Il codice si apre con una serie di dichiarazioni (comando declare) su nome app,
+breve descrizione e autori.
+
+declare filename "Superstereosynth.dsp"; declare name "Superstereosynth";
+declare name "Superstereo Synth";
+declare description "Subtractive Phaser Modulated Synth";
+declare author "Davide Croci";
+declare author "Giuseppe Messineo";
+declare author "Gianmarco Romiti";
+import("stdfaust.lib");
+
+Segue la sezione GUI, in cui vengono definiti l'interfaccia grafica e tutti gli
+elementi che la compongono (faders, knob, pulsanti...) e, nel caso dei master,
+visualizzati con due faders, anche il range che li definisce (da -70 a 0 dB).
+
+// GUI
+main(x) = hgroup("[01] ONE",x);
+s_g(x) = main(vgroup("[01] SUBTRACTIVE",x));
+m_g(x) = main(vgroup("[03] MASTER",x));
+p_g(x) = main(vgroup("[05] PHASER",x));
+lmeter(x) = main(attach(x,an.amp_follower(0.150,x):ba.linear2db:vbargraph
+			("[02] L [unit:dB]", -70,0)));
+rmeter(x) = main(attach(x,an.amp_follower(0.150,x):ba.linear2db:vbargraph
+			("[04] R [unit:dB]", -70,0)));
+meters = lmeter, rmeter;
+
+La sezione SUBTRACTIVE definisce le caratteristiche del segnale di partenza.
+Viene fornita un'alternativa tra onda a dente di sega (saw) e rumore bianco
+(noise) con un pulsante; successivamente mediante 3 knob si può controllare il
+filtro di taglio, la larghezza di banda Q e il gain.
+
+// SUBTRACTIVE
+// Sawfreq Custom
+sawfreq = 1500;
+generator = (no.noise *switch),(os.sawtooth(sawfreq)*(1-switch)) :> _;
+switch = s_g(checkbox("[01] Saw/Noise")) : si.smoo;
+gain = s_g(vslider("[04] Gain [style:knob]",-96,-96,+12,0.01)) : ba.db2linear
+			: si.smoo;
+Q = s_g(vslider("[03] Q [style:knob]",1,0.7072,25,0.01));
+fcut = s_g( vslider("[02] FCut [style:knob]",0.1,0,1,0.001)) : si.smoo;
+subtractive = generator : ve.moogLadder(fcut,Q) : *(gain);
+
+La sezione PHASER definisce i parametri dell'effetto phaser: un pulsante bypass,
+e 3 knob per controllare Lfo, Feedback e Delay .
+
+// PHASER
+lff = p_g(vslider("[02] Lfo [style:knob]", 0.358, 0, 16, 0.001)) : si.smoo;
+fbk = p_g(vslider("[03] Feedback [style:knob]", -0.689, -0.999, 0.999, 0.001)
+			: si.smoo);
+del = p_g(nentry("[04] Delay [style:knob]", 1, 1, 100, 1));
+lfo = os.osc(lff);
+phaserLR(N,x,d,g,fb) = x <: l,r
+with{
+  allpassL(d,g) = (+ <: de.fdelay((ma.SR/2),d),*(-g)) ~ *(g) : mem,_ : +;
+  allpassR(d,g) = (+ <: de.fdelay((ma.SR/2),d),*(g)) ~ *(-g) : mem,_ : +;
+  apseqL(N,d,g) = seq(i,N,allpassL(d,g));
+  apseqR(N,d,g) = seq(i,N,allpassR(d,g));
+
+  l= _, (+:apseqL(N,d,g))~*(fb):> _;
+  r=  _, (+:apseqR(N,d,g))~*(-fb):> _;
+};
+
+Sotto allo slider del MASTER è posizionato uno knob denominato WIDE per
+controllare lo stereo shuffler (termine coniato da Alan Blumlein \cite{ab58},
+ovvero l'apertura in stereo panning del segnale in uscita del synth; in pratica
+un amplificatore della stereofonia.
+
+\begin{figure}[b]%b=bottom,t=top, h=here
+\begin{center}
+\includegraphics[width=.47\textwidth]{img/mid-side-shuffler.pdf}
+\caption{\textbf{Stereo Shuffler}. descrizione.}
+\label{shuff}
+\end{center}
+\end{figure}
+
+// STEREO SHUFFLER
+pot = m_g(vslider("[02] WIDE [style:knob]",100,0,200,0.1)) : /(100) : si.smoo;
+somma = + : /(2);
+diff = - : /(2);
+sdm = somma,diff;
+wide = _, * (sqrt(pot));
+stereoshuffle= _,_ <: sdm : wide <: sdm;
+// N all-pass custom (min = sharp | max = smooth)
+superstereophaser = phaserLR(4,_,del,lfo,fbk) : stereoshuffle;
+// HARD LIMITER
+chopper(a) = min(a) : max(-a);
+// Chopper amp custom | Filter order custom | Filter freq custom
+hardlimiter = chopper(0.7) : fi.lowpass(12,15000): chopper(0.9)
+				: fi.lowpass6e(20000);
+phchop = superstereophaser : hardlimiter, hardlimiter;
+
+Infine la sezione MASTER CONTROLS permette di controllare i parametri di uscita
+del suono: uno slider per definire il volume master di uscita, un pulsante Mute,
+due meters per visualizzare anche a livello visivo l'andamento del suono in
+uscita tra i due canali destro e sinistro.
+
+// MASTER CONTROLS
+mute=m_g(*(1-(checkbox("[04] Mute")))) : si.smoo;
+volume = m_g(vslider("[02] VOLUME ",-70,-70,0,0.1)) : ba.db2linear : si.smoo;
+bpc = p_g(checkbox("[01] Bypass"));
+phaser = ba.bypass1to2(bpc,phchop);
+mutes = mute,mute;
+master = (*(volume), *(volume));
+process= subtractive : phaser : master : mutes : meters;
+
+
+%\newpage % USE NEWPAGE TO FORCE COLUMNN INTERRUPTION
 %-------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------
-\section*{UNNUMBERED SECTION}
+\section*{CONCLUSIONI}
+
+Confrontarsi ex novo con i linguaggi macchina per creare un prodotto come questo
+synth virtuale, pur nella sua semplicità, è interessante e ha dato spunti
+interessanti per il futuro, chissà non diventi un punto di partenza per
+sperimentare nuove possibilità sonore. Un ultimo cenno sui programmi Atom, Latex
+e Github, prima sconosciuti e che hanno permesso di redigere in forma di
+documento con una struttura di tipo e livello accademico.
 
 \begin{quote}
-La musica non e` solo composizione. \\
-Non è artigianato, non è un mestiere. \\
-La musica è pensiero.\cite{nono85}.
+La musica è matematica, \\
+ma la matematica non basta a spiegare la musica \\
+(Tiziano Terzani) \cite{tizterz}.
 \end{quote}
+%
+% \begin{table}[htp]
+% \begin{center}
+% \begin{tabular}{ll}
+% \textbf{Stages} & \textbf{Dur.} \\
+% \hline
+% \textbf{Omnidirectional Expositions} & 6 mo. \\
+% Sound-shape analysis and visualizations & \\
+% Sound-shape reproduction & \\
+% Sound-shape database design & \\
+% \hline
+% \textbf{Micro-Rhythm of sound-shape} & 12 mo. \\
+% Solo repertoire analysis & \\
+% Sound-shape explosion in practising & \\
+% From literature to shapes open-data & \\
+% \hline
+% \textbf{Rhythm of sound-shape interactions} & 12 mo. \\
+% Multiple sources multiple shapes & \\
+% Relationship and complexity perception & \\
+% \hline
+% \textbf{Sound-shape in musical composition} & 12 mo. \\
+% AI: unleashed writing opportunities & \\
+% AI: can you listen the time? & \\
+% \hline
+% \textbf{Final documentation} & 6 mo. \\
+% \end{tabular}
+% \label{timesheet}
+% \caption{Thinking Tetrahedral Today stages}
+% \end{center}
+% \end{table}%
 
-Some predictions of general relativity differ significantly from those of
-classical physics, especially concerning the passage of time, the geometry of
-space, the motion of bodies in free fall, and the propagation of light. Examples
-of such differences include gravitational time dilation, gravitational lensing,
-the gravitational redshift of light, and the gravitational time delay. The
-predictions of general relativity in relation to classical physics have been
-confirmed in all observations and experiments to date. Although general
-relativity is not the only relativistic theory of gravity, it is the simplest
-theory that is consistent with experimental data. However, unanswered questions
-remain, the most fundamental being how general relativity can be reconciled with
-the laws of quantum physics to produce a complete and self-consistent theory of
-quantum gravity.
 
-\begin{table}[htp]
-\begin{center}
-\begin{tabular}{ll}
-\textbf{Stages} & \textbf{Dur.} \\
-\hline
-\textbf{Omnidirectional Expositions} & 6 mo. \\
-Sound-shape analysis and visualizations & \\
-Sound-shape reproduction & \\
-Sound-shape database design & \\
-\hline
-\textbf{Micro-Rhythm of sound-shape} & 12 mo. \\
-Solo repertoire analysis & \\
-Sound-shape explosion in practising & \\
-From literature to shapes open-data & \\
-\hline
-\textbf{Rhythm of sound-shape interactions} & 12 mo. \\
-Multiple sources multiple shapes & \\
-Relationship and complexity perception & \\
-\hline
-\textbf{Sound-shape in musical composition} & 12 mo. \\
-AI: unleashed writing opportunities & \\
-AI: can you listen the time? & \\
-\hline
-\textbf{Final documentation} & 6 mo. \\
-\end{tabular}
-\label{timesheet}
-\caption{Thinking Tetrahedral Today stages}
-\end{center}
-\end{table}%
+%\begin{compactitem}
+%\item Derivations of the Lorentz transformations
+%\item Einstein–Hilbert action
+%\item Tests of general relativity
+%\item Two-body problem in general relativity
+%\end{compactitem}
 
-Einstein's theory has important astrophysical implications. For example, it
-implies the existence of black holes regions of space in which space and time
-are distorted in such a way that nothing, not even light, can escape as an
-end state for massive stars. There is ample evidence that the intense radiation
-emitted by certain kinds of astronomical objects is due to black holes. For
-example, microquasars and active galactic nuclei result from the presence of
-stellar black holes and supermassive black holes, respectively. The bending of
-light by gravity can lead to the phenomenon of gravitational lensing, in which
-multiple images of the same distant astronomical object are visible in the sky.
-General relativity also predicts the existence of gravitational waves, which
-have since been observed directly by the physics collaboration LIGO. In addition,
-general relativity is the basis of current cosmological models of a consistently
-expanding universe.
-
-\begin{compactitem}
-\item Derivations of the Lorentz transformations
-\item Einstein–Hilbert action
-\item Tests of general relativity
-\item Two-body problem in general relativity
-\end{compactitem}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=.47\textwidth]{img/image2.jpg}
-\caption{Mind Mapping}
-\label{gs}
-\end{figure}
-
-\begin{equation}
-m(x,p,\theta) = (p*x) + ((1-p)*(x\cos\theta)
-\label{eq:mid}
-\end{equation}
-
-Some predictions of general relativity differ significantly from those of
-classical physics, especially concerning the passage of time, the geometry of
-space, the motion of bodies in free fall, and the propagation of light.
-
-%--------------------------------------------
-%----------------larghezza massima del codice
-\begin{lstlisting}
-mspan(x,p,rad) = m,s
-with{
-  m = (p*x)+((1-p)*(x*cos(rad)));
-  s = x*(sin(-rad));
-};
-\end{lstlisting}
-
-Examples
-of such differences include gravitational time dilation, gravitational lensing,
-the gravitational redshift of light, and the gravitational time delay. The
-predictions of general relativity in relation to classical physics have been
-confirmed in all observations and experiments to date. Although general
-relativity is not the only relativistic theory of gravity, it is the simplest
-theory that is consistent with experimental data.
 
 \vfill\null
 
