@@ -239,18 +239,20 @@ Regola lo sfasamento temporale della fase opposta alla forma d'onda originale.
 Il codice si apre con una serie di dichiarazioni (comando declare) su nome app,
 breve descrizione e autori.
 
+\begin{lstlisting}
 declare name "Superstereo Synth";
 declare description "Subtractive Phaser Modulated Synth";
 declare author "Davide Croci";
 declare author "Giuseppe Messineo";
 declare author "Gianmarco Romiti";
 import("stdfaust.lib");
-
+\end{lstlisting}
 
 Segue la sezione GUI, in cui vengono definiti l'interfaccia grafica e tutti gli
 elementi che la compongono (faders, knob, pulsanti...) e, nel caso dei master,
 visualizzati con due faders, anche il range che li definisce (da -70 a 0 dB).
 
+\begin{lstlisting}
 // GUI
 main(x) = hgroup("[01] Superstereo Synth",x);
 s_g(x) = main(vgroup("[01] SUBTRACTIVE",x));
@@ -261,12 +263,14 @@ lmeter(x) = main(attach(x,an.amp_follower(0.150,x):ba.linear2db:vbargraph("[02]
 rmeter(x) = main(attach(x,an.amp_follower(0.150,x):ba.linear2db:vbargraph("[04]
 			R [unit:dB]", -70,0)));
 meters = lmeter, rmeter;
+\end{lstlisting}
 
 La sezione SUBTRACTIVE definisce le caratteristiche del segnale di partenza.
 Viene fornita un'alternativa tra onda a dente di sega (saw) e rumore bianco
 (noise) con un pulsante; successivamente mediante 3 knob si può controllare il
 filtro di taglio, la larghezza di banda Q e il gain.
 
+\begin{lstlisting}
 // SUBTRACTIVE
 // Sawfreq Custom
 sawfreq = 123;
@@ -277,6 +281,7 @@ gain = s_g(vslider("[04] Gain [style:knob]",-12,-96,+12,0.01)) : ba.db2linear
 Q = s_g(vslider("[03] Q [style:knob]",5,0.7072,25,0.01));
 fcut = s_g( vslider("[02] Cut [style:knob]",0.65,0,1,0.001)) : si.smoo;
 subtractive = generator : ve.moogLadder(fcut,Q) : *(gain);
+\end{lstlisting}
 
 La sezione PHASER definisce i parametri dell'effetto phaser: un pulsante bypass,
 e 3 knob per controllare Lfo, Feedback e Delay. Più avanti si stabilisce anche
@@ -286,6 +291,7 @@ oltrepassare un dato livello di segnale ed evitare la distorsione) e un filtro
 chopper che taglia drasticamente il segnale per evitare ridondanze derivate
 dalla sovrapposizione delle fasi.
 
+\begin{lstlisting}
 // PHASER
 lff = p_g(vslider("[02] Lfo [style:knob]", 0.358, 0, 16, 0.001)) : si.smoo;
 fbk = p_g(vslider("[03] Feedback [style:knob]", -0.689, -0.999, 0.999, 0.001)
@@ -311,7 +317,7 @@ chopper(a) = min(a) : max(-a);
 hardlimiter = chopper(0.7) : fi.lowpass(12,15000): chopper(0.9) :
 			fi.lowpass6e(20000);
 phchop = superstereophaser : hardlimiter, hardlimiter;
-
+\end{lstlisting}
 
 Sotto allo slider del MASTER è posizionato uno knob denominato WIDE per
 controllare lo STEREO SHUFFLER (termine coniato da Alan Blumlein \cite{ab58} ),
@@ -326,6 +332,7 @@ un amplificatore della stereofonia.
 \end{center}
 \end{figure}
 
+\begin{lstlisting}
 // STEREO SHUFFLER
 pot = m_g(vslider("[02] WIDE [style:knob]",100,0,200,0.1)) : /(100) : si.smoo;
 somma = + : /(2);
@@ -333,12 +340,14 @@ diff = - : /(2);
 sdm = somma,diff;
 wide = _, * (sqrt(pot));
 stereoshuffle= _,_ <: sdm : wide <: sdm;
+\end{lstlisting}
 
 Infine la sezione MASTER CONTROLS permette di controllare i parametri di uscita
 del suono: uno slider per definire il volume master di uscita, un pulsante Mute,
 due meters per visualizzare anche a livello visivo l'andamento del suono in
 uscita tra i due canali destro e sinistro.
 
+\begin{lstlisting}
 // MASTER CONTROLS
 mute=m_g(*(1-(checkbox("[04] Mute")))) : si.smoo;
 volume = m_g(vslider("[02] VOLUME ",-6,-70,12,0.1)) : ba.db2linear : si.smoo;
@@ -347,7 +356,7 @@ phaser = ba.bypass1to2(bpc,phchop);
 mutes = mute,mute;
 master = (*(volume), *(volume));
 process= subtractive : phaser : master : mutes : meters;
-
+\end{lstlisting}
 
 %\newpage % USE NEWPAGE TO FORCE COLUMNN INTERRUPTION
 %-------------------------------------------------------------------------------
