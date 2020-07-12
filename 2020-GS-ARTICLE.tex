@@ -66,11 +66,11 @@ A.A. 2019-20}
 \section*{INTRODUZIONE}
 
 L’obiettivo del corso era la creazione di un sintetizzatore virtuale accessibile
-online, con opzione di utilizzo su varie piattaforme, sia tramite sito web che
-su diverse piattaforme, in modo che fosse utilizzabile anche offline. In
-aggiunta l'idea di approfondire nuove possibilità di analisi sonora e il poter
-mettere in pratica programmando fisicamente in linguaggi macchina nozioni
-teoriche apprese in altri corsi si è rivelata, almeno per quel che riguarda il
+online, %con opzione di utilizzo su varie piattaforme, sia tramite sito web che su diverse piattaforme, in modo che fosse
+ma utilizzabile anche offline. In aggiunta l'idea di approfondire nuove
+possibilità di analisi sonora e il poter mettere in pratica programmando
+attraverso un linguaggio algebrico molto economico nozioni teoriche apprese
+in altri corsi si è rivelata, almeno per quel che riguarda il
 sottoscritto, uno stimolo aggiuntivo all'apprendimento di nuove nozioni. Il
 pensiero iniziale era quello di partire da un modello proposto, poi
 trasformatosi in proposta di resa modulare con utilizzo di singoli moduli
@@ -79,48 +79,60 @@ Applicata e non di Musica Elettronica pura, è la quasi totale assenza di
 background per quanto riguarda i linguaggi di programmazione, e l'appoggiarsi a
 modelli di riferimento già esistenti era necessaria e si è rivelata una mossa
 vincente.
+
 Alla fine il risultato ha preso il nome di "Superstereo Synth", e la metodologia
 scelta per la sua realizzazione è stata la programmazione in linguaggio Faust
 \cite{faust}. La tecnologia individuata è una sintesi sottrattiva modulata
 da phaser.
 
-\section*{Descrizione interfaccia grafica}
+\section*{DESCRIZIONE INTERFACCIA GRAFICA}
 
-Modulo di generazione sonora:
-- switch saw/noise per selezione forma d’onda di partenza
-- knob Fcut per filtro di taglio 0/1
-- knob Q  per determinare la larghezza di banda 0,7/25
-- knob Gain -96/+12
+\noindent Modulo di generazione sonora:
 
-Modulo di phasing
-- switch Bypass per attivare/disattivare l’effetto
-- knob Lfo per frequenza dell’onda modulante 0/16
-- knob Feedback per retroazione con coefficienti -1/1
-- knob Delay degli allpass 1/100
+\begin{compactitem}
+  \item switch saw/noise per selezione forma d’onda di partenza
+  \item knob \emph{Fcut} per requenza di taglio normalizzata $0/1$
+  \item knob \emph{Q} per determinare la larghezza di banda $0.7/25$
+  \item knob \emph{Gain} $-96/+12$
+\end{compactitem}
 
-Modulo master
-- knob Pan L-R  -45/+45
-- slider Volume (in dB) -70/0
-- switch Mute on/off
-- n.2 meters per visualizzazione livello di uscita Left e Right
+\bigskip
 
+\noindent Modulo di phasing:
 
-\section*{Descrizione dei processi audio}
+\begin{compactitem}
+  \item switch \emph{Bypass} per attivare/disattivare l’effetto
+  \item knob \emph{Lfo} per frequenza dell’onda modulante $0/16$
+  \item knob \emph{Feedback} per retroazione con coefficienti $-1/1$
+  \item knob \emph{Delay} degli allpass $1/100$
+\end{compactitem}
+
+\bigskip
+
+\noindent Modulo master:
+
+\begin{compactitem}
+  \item knob \emph{Pan L-R} $-45/+45$
+  \item slider \emph{Volume} (in dB) $-70/0$
+  \item switch \emph{Mute} on/off
+  \item n.2 meters per visualizzazione livello di uscita Left e Right
+\end{compactitem}
+
+\section*{DESCRIZIONE DEI PROCESSI AUDIO}
 
 Il processo di elaborazione audio viene quindi ad essere, come già accennato,
 una sintesi sottrattiva modulata da phaser e con un modulo di gestione di base
 dell'uscita del segnale (Pan, Volume, Mute, Meters)
 
-\begin{figure}[b]%b=bottom,t=top, h=here
+\begin{figure}[h]
 \begin{center}
 \includegraphics[width=.47\textwidth]{img/process.pdf}
-\caption{\textbf{Process}. descrizione.}
+\caption{\textbf{Process}. Struttura generale del sintetizzatore.}
 \label{process}
 \end{center}
 \end{figure}
 
-
-Sintesi sottrattiva saw/noise
+\subsection*{Sintesi sottrattiva saw/noise}
 
 E’ un modello di sintesi nella quale una sorgente sonora, ricca di armoniche
 (parziali), viene ad essere modificata da un punto di vista spettrale,
@@ -131,7 +143,7 @@ spettro molto ricco di armoniche, come quelli prodotti da generatori di rumore
 o di impulsi. Questo procedimento è il più utilizzato per la produzione di
 timbri nell'elettronica analogica, tanto che molti effetti tipici della sintesi
 sottrattiva sono diventati sinonimo stesso di musica elettronica. Il principio
-su cui si basa questa sintesi è quello di un oscillatore che genera delle forme
+su cui si basa questa sintesi è quello di un generatore di forme
 d'onda che abbiano già una propria conformazione armonica: un generatore di
 rumore produce uno spettro distribuito a larga banda, un generatore di impulsi
 produce invece una forma d’onda periodica ad una frequenza specifica che
@@ -142,11 +154,13 @@ Gli aspetti più interessanti della sintesi sottrattiva vengono evidenziati
 attraverso un processo dinamico, ovvero quando questa operazione di filtraggio
 si sviluppa durante l’evoluzione temporale del segnale.
 
-Filtro di taglio Fcut
-Un filtro modifica le caratteristiche spettrali dei suoni eliminando le
-parziali indesiderate in un segnale o “modellando” il suo spettro; un filtro
+\subsection*{Filtro, frequenza di taglio}
+
+Il filtro scelto per operare sul suono del generatore è della tipologia \emph{passa basso}
+ovvero un filtro in grado di modificare le caratteristiche spettrali dei suoni
+eliminando, filtrando, bande indesiderate; un filtro
 modifica quindi l’ampiezza e la fase di un segnale che passi attraverso di esso,
-senza alterare la frequenza di alcuna componente spettrale sel segnale stesso.
+senza alterare la frequenza di alcuna componente spettrale del segnale stesso.
 Tramite un filtro, quindi, vengono selezionate soltanto alcune delle componenti
 di queste forme d'onda e le altre vengono escluse. Nell'analogico il
 procedimento è abbastanza semplice; l'uscita dell'oscillatore viene inviata
@@ -155,14 +169,13 @@ determinata gamma di frequenze. Applicando un generatore di funzioni al filtro
 otterremo una variazione continua delle frequenze selezionate. Questo
 procedimento, molto empirico, ha il pregio di creare una variazione continua
 dello spettro, cosa che è alla base della creazione dei suoni "sintetici".
-Nel nostro caso abbiamo un filtro passa banda (band-pass filter), ovvero un
-filtro che taglia sia frequenze alte che basse; la frequenza di taglio è
+La frequenza di taglio è
 definita come la frequenza alla quale l’energia trasmessa dal filtro diminuisce
 di metà (-3 dB) rispetto alla massima energia trasmessa dalla banda passante.
 Essendo un filtro di tipo digitale, la Fc o Fcut è data dalla media aritmetica
 della frequenza di taglio superiore ed inferiore.
 
-Larghezza di banda Q
+\subsection*{Larghezza di banda Q}
 La larghezza di banda è una misura della selettività del filtro ed è uguale
 alla differenza tra frequenza di taglio superiore ed inferiore; la selettività
 del filtro passabanda è quantificata per mezzo di un fattore di qualità (o
@@ -172,12 +185,12 @@ per il quale esso dovrà operare (per es. un filtro passabanda con una
 strettissima larchezza di banda può essere usato per estrarre da un segnale
 audio una specifica componente in frequenza, ovvero una parziale).
 
-Gain
+\subsection*{Gain}
+
 Con il gain ovviamente andiamo a definire il volume di partenza della forma
 d’onda.
 
-
-Modulo di phasing
+\subsection*{Modulo di phasing}
 
 Il phasing è un processo modulativo che parte duplicando una forma d'onda di
 partenza, ottenendo due segnali identici per intensità, frequenza e fase,
@@ -192,53 +205,59 @@ agli altri filtri, non elimina frequenze ma varia la fase del segnale audio
 modificando le relazioni di fase tra le varie frequenze, secondo il modello di
 \cite{cr1996cmt}.
 
-\begin{figure}[b]%b=bottom,t=top, h=here
+\begin{figure}[h]
 \begin{center}
 \includegraphics[width=.47\textwidth]{img/phaser.pdf}
-\caption{\textbf{Phaser}. descrizione.}
+\caption{\textbf{Phaser}.}
 \label{phas}
 \end{center}
 \end{figure}
 
-Bypass
+\subsection*{Bypass}
+
 E' un pulsante che ovviamente permette di bypassare l'effetto per avere un
 ascolto depurato dall'effetto phaser.
 
-Lfo
+\subsection*{Lfo}
+
 Sigla di Low Frequency oscillator, è un generatore di forme d'onda a frequenza
 infrasonica, con funzione di modulatore d'effetti. In questo caso serve a
 modulare l'effetto per poi sommarlo al segnale originale.
 
-Feedback
+\subsection*{Feedback}
+
 Determina la quantità di suono "filtrato" (ovvero cambiato di fase e
 ritardato nel tempo) che ritorna al filtro stesso per essere ritardato
 nuovamente; in pratica aumenta l'effetto uditivo del phaser rendendolo
 molto più evidente.
 
-Delay
+\subsection*{Delay}
+
 Regola lo sfasamento temporale della fase opposta alla forma d'onda originale.
 
 %\vfill\null
 
-
-
-\subsubsection*{DESCRIZIONE DEL CODICE}
+\section*{DESCRIZIONE DEL CODICE}
 
 Il codice si apre con una serie di dichiarazioni (comando declare) su nome app,
 breve descrizione e autori.
 
-declare filename "Superstereosynth.dsp"; declare name "Superstereosynth";
+\begin{lstlisting}
+declare filename "Superstereosynth.dsp";
+declare name "Superstereosynth";
 declare name "Superstereo Synth";
 declare description "Subtractive Phaser Modulated Synth";
 declare author "Davide Croci";
 declare author "Giuseppe Messineo";
 declare author "Gianmarco Romiti";
 import("stdfaust.lib");
+\end{lstlisting}
 
 Segue la sezione GUI, in cui vengono definiti l'interfaccia grafica e tutti gli
 elementi che la compongono (faders, knob, pulsanti...) e, nel caso dei master,
 visualizzati con due faders, anche il range che li definisce (da -70 a 0 dB).
 
+\begin{lstlisting}
 // GUI
 main(x) = hgroup("[01] ONE",x);
 s_g(x) = main(vgroup("[01] SUBTRACTIVE",x));
@@ -249,12 +268,14 @@ lmeter(x) = main(attach(x,an.amp_follower(0.150,x):ba.linear2db:vbargraph
 rmeter(x) = main(attach(x,an.amp_follower(0.150,x):ba.linear2db:vbargraph
 			("[04] R [unit:dB]", -70,0)));
 meters = lmeter, rmeter;
+\end{lstlisting}
 
 La sezione SUBTRACTIVE definisce le caratteristiche del segnale di partenza.
 Viene fornita un'alternativa tra onda a dente di sega (saw) e rumore bianco
 (noise) con un pulsante; successivamente mediante 3 knob si può controllare il
 filtro di taglio, la larghezza di banda Q e il gain.
 
+\begin{lstlisting}
 // SUBTRACTIVE
 // Sawfreq Custom
 sawfreq = 1500;
@@ -265,10 +286,12 @@ gain = s_g(vslider("[04] Gain [style:knob]",-96,-96,+12,0.01)) : ba.db2linear
 Q = s_g(vslider("[03] Q [style:knob]",1,0.7072,25,0.01));
 fcut = s_g( vslider("[02] FCut [style:knob]",0.1,0,1,0.001)) : si.smoo;
 subtractive = generator : ve.moogLadder(fcut,Q) : *(gain);
+\end{lstlisting}
 
 La sezione PHASER definisce i parametri dell'effetto phaser: un pulsante bypass,
 e 3 knob per controllare Lfo, Feedback e Delay .
 
+\begin{lstlisting}
 // PHASER
 lff = p_g(vslider("[02] Lfo [style:knob]", 0.358, 0, 16, 0.001)) : si.smoo;
 fbk = p_g(vslider("[03] Feedback [style:knob]", -0.689, -0.999, 0.999, 0.001)
@@ -285,20 +308,22 @@ with{
   l= _, (+:apseqL(N,d,g))~*(fb):> _;
   r=  _, (+:apseqR(N,d,g))~*(-fb):> _;
 };
+\end{lstlisting}
 
 Sotto allo slider del MASTER è posizionato uno knob denominato WIDE per
 controllare lo stereo shuffler (termine coniato da Alan Blumlein \cite{ab58},
 ovvero l'apertura in stereo panning del segnale in uscita del synth; in pratica
 un amplificatore della stereofonia.
 
-\begin{figure}[b]%b=bottom,t=top, h=here
+\begin{figure}[b]
 \begin{center}
 \includegraphics[width=.47\textwidth]{img/mid-side-shuffler.pdf}
-\caption{\textbf{Stereo Shuffler}. descrizione.}
+\caption{\textbf{Stereo Shuffler}.}
 \label{shuff}
 \end{center}
 \end{figure}
 
+\begin{lstlisting}
 // STEREO SHUFFLER
 pot = m_g(vslider("[02] WIDE [style:knob]",100,0,200,0.1)) : /(100) : si.smoo;
 somma = + : /(2);
@@ -314,12 +339,14 @@ chopper(a) = min(a) : max(-a);
 hardlimiter = chopper(0.7) : fi.lowpass(12,15000): chopper(0.9)
 				: fi.lowpass6e(20000);
 phchop = superstereophaser : hardlimiter, hardlimiter;
+\end{lstlisting}
 
 Infine la sezione MASTER CONTROLS permette di controllare i parametri di uscita
 del suono: uno slider per definire il volume master di uscita, un pulsante Mute,
 due meters per visualizzare anche a livello visivo l'andamento del suono in
 uscita tra i due canali destro e sinistro.
 
+\begin{lstlisting}
 // MASTER CONTROLS
 mute=m_g(*(1-(checkbox("[04] Mute")))) : si.smoo;
 volume = m_g(vslider("[02] VOLUME ",-70,-70,0,0.1)) : ba.db2linear : si.smoo;
@@ -328,11 +355,9 @@ phaser = ba.bypass1to2(bpc,phchop);
 mutes = mute,mute;
 master = (*(volume), *(volume));
 process= subtractive : phaser : master : mutes : meters;
+\end{lstlisting}
 
 
-%\newpage % USE NEWPAGE TO FORCE COLUMNN INTERRUPTION
-%-------------------------------------------------------------------------------
-%-------------------------------------------------------------------------------
 \section*{CONCLUSIONI}
 
 Confrontarsi ex novo con i linguaggi macchina per creare un prodotto come questo

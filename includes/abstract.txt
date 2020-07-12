@@ -3,5 +3,6 @@ per la multimedialità” si propone di introdurre gli studenti del corso di Mus
 Applicata alle WebAudio app e alla loro programmazione in ambiente Faust, HTML5,
 CSS, anche attraverso l'uso di strumenti come GitHub, Rvm, Ruby, Atom.
 Utilizzando alcune di queste risorse durante l'A.A. 2019-20 è stato avviato un
-progetto che tra poco si andrà ad esporre.
+progetto di sintesi modulare digitale con possibilità di interfaccia web.
+% che tra poco si andrà ad esporre.
 %\cite{smalley_1997}
