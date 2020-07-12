@@ -66,8 +66,7 @@ A.A. 2019-20}
 \section*{INTRODUZIONE}
 
 L’obiettivo del corso era la creazione di un sintetizzatore virtuale accessibile
-online, %con opzione di utilizzo su varie piattaforme, sia tramite sito web che su diverse piattaforme, in modo che fosse
-ma utilizzabile anche offline. In aggiunta l'idea di approfondire nuove
+online, ma utilizzabile anche offline. In aggiunta l'idea di approfondire nuove
 possibilità di analisi sonora e il poter mettere in pratica programmando
 attraverso un linguaggio algebrico molto economico nozioni teoriche apprese
 in altri corsi si è rivelata, almeno per quel che riguarda il
@@ -79,11 +78,12 @@ Applicata e non di Musica Elettronica pura, è la quasi totale assenza di
 background per quanto riguarda i linguaggi di programmazione, e l'appoggiarsi a
 modelli di riferimento già esistenti era necessaria e si è rivelata una mossa
 vincente.
-
 Alla fine il risultato ha preso il nome di "Superstereo Synth", e la metodologia
 scelta per la sua realizzazione è stata la programmazione in linguaggio Faust
 \cite{faust}. La tecnologia individuata è una sintesi sottrattiva modulata
 da phaser.
+%con opzione di utilizzo su varie piattaforme, sia tramite sito web che su
+%diverse piattaforme, in modo che fosse
 
 \section*{DESCRIZIONE INTERFACCIA GRAFICA}
 
@@ -156,11 +156,12 @@ si sviluppa durante l’evoluzione temporale del segnale.
 
 \subsection*{Filtro, frequenza di taglio}
 
-Il filtro scelto per operare sul suono del generatore è della tipologia \emph{passa basso}
-ovvero un filtro in grado di modificare le caratteristiche spettrali dei suoni
-eliminando, filtrando, bande indesiderate; un filtro
-modifica quindi l’ampiezza e la fase di un segnale che passi attraverso di esso,
-senza alterare la frequenza di alcuna componente spettrale del segnale stesso.
+Il filtro scelto per operare sul suono del generatore è della tipologia
+\emph{passa basso},ispirato al filtro Ladder di Bob Moog, ovvero un sistema che
+permette il passaggio di frequenze al di sotto di una certa soglia, detta
+frequenza di taglio (qui Fcut); un filtro modifica quindi l’ampiezza e la fase
+di un segnale che passi attraverso di esso, senza alterare la frequenza di
+alcuna componente spettrale del segnale stesso.
 Tramite un filtro, quindi, vengono selezionate soltanto alcune delle componenti
 di queste forme d'onda e le altre vengono escluse. Nell'analogico il
 procedimento è abbastanza semplice; l'uscita dell'oscillatore viene inviata
@@ -175,15 +176,11 @@ di metà (-3 dB) rispetto alla massima energia trasmessa dalla banda passante.
 Essendo un filtro di tipo digitale, la Fc o Fcut è data dalla media aritmetica
 della frequenza di taglio superiore ed inferiore.
 
-\subsection*{Larghezza di banda Q}
-La larghezza di banda è una misura della selettività del filtro ed è uguale
-alla differenza tra frequenza di taglio superiore ed inferiore; la selettività
-del filtro passabanda è quantificata per mezzo di un fattore di qualità (o
-fattore di merito) Q. Un alto Q denota una banda stretta, un basso Q una banda
-larga; la selettività di un filtro è scelta in funzione al tipo di applicazione
-per il quale esso dovrà operare (per es. un filtro passabanda con una
-strettissima larchezza di banda può essere usato per estrarre da un segnale
-audio una specifica componente in frequenza, ovvero una parziale).
+\subsection*{Fattore di merito Q}
+
+E' un parametro di smorzamento di un'oscillazione, ed è detto fattore di merito o
+di qualità perchè misura la qualità desiderata in un circuito accordato o in un
+risonatore
 
 \subsection*{Gain}
 
@@ -203,7 +200,7 @@ volte fuori fase; questo effetto, denominato "phase shifter" è alla base del
 funzionamento del phaser. Qui è usato un filtro all-pass, che, contrariamente
 agli altri filtri, non elimina frequenze ma varia la fase del segnale audio
 modificando le relazioni di fase tra le varie frequenze, secondo il modello di
-\cite{cr1996cmt}.
+Curtis Roads \cite{cr1996cmt}.
 
 \begin{figure}[h]
 \begin{center}
@@ -242,56 +239,53 @@ Regola lo sfasamento temporale della fase opposta alla forma d'onda originale.
 Il codice si apre con una serie di dichiarazioni (comando declare) su nome app,
 breve descrizione e autori.
 
-\begin{lstlisting}
-declare filename "Superstereosynth.dsp";
-declare name "Superstereosynth";
 declare name "Superstereo Synth";
 declare description "Subtractive Phaser Modulated Synth";
 declare author "Davide Croci";
 declare author "Giuseppe Messineo";
 declare author "Gianmarco Romiti";
 import("stdfaust.lib");
-\end{lstlisting}
+
 
 Segue la sezione GUI, in cui vengono definiti l'interfaccia grafica e tutti gli
 elementi che la compongono (faders, knob, pulsanti...) e, nel caso dei master,
 visualizzati con due faders, anche il range che li definisce (da -70 a 0 dB).
 
-\begin{lstlisting}
 // GUI
-main(x) = hgroup("[01] ONE",x);
+main(x) = hgroup("[01] Superstereo Synth",x);
 s_g(x) = main(vgroup("[01] SUBTRACTIVE",x));
 m_g(x) = main(vgroup("[03] MASTER",x));
 p_g(x) = main(vgroup("[05] PHASER",x));
-lmeter(x) = main(attach(x,an.amp_follower(0.150,x):ba.linear2db:vbargraph
-			("[02] L [unit:dB]", -70,0)));
-rmeter(x) = main(attach(x,an.amp_follower(0.150,x):ba.linear2db:vbargraph
-			("[04] R [unit:dB]", -70,0)));
+lmeter(x) = main(attach(x,an.amp_follower(0.150,x):ba.linear2db:vbargraph("[02]
+			L [unit:dB]", -70,0)));
+rmeter(x) = main(attach(x,an.amp_follower(0.150,x):ba.linear2db:vbargraph("[04]
+			R [unit:dB]", -70,0)));
 meters = lmeter, rmeter;
-\end{lstlisting}
 
 La sezione SUBTRACTIVE definisce le caratteristiche del segnale di partenza.
 Viene fornita un'alternativa tra onda a dente di sega (saw) e rumore bianco
 (noise) con un pulsante; successivamente mediante 3 knob si può controllare il
 filtro di taglio, la larghezza di banda Q e il gain.
 
-\begin{lstlisting}
 // SUBTRACTIVE
 // Sawfreq Custom
-sawfreq = 1500;
+sawfreq = 123;
 generator = (no.noise *switch),(os.sawtooth(sawfreq)*(1-switch)) :> _;
 switch = s_g(checkbox("[01] Saw/Noise")) : si.smoo;
-gain = s_g(vslider("[04] Gain [style:knob]",-96,-96,+12,0.01)) : ba.db2linear
+gain = s_g(vslider("[04] Gain [style:knob]",-12,-96,+12,0.01)) : ba.db2linear
 			: si.smoo;
-Q = s_g(vslider("[03] Q [style:knob]",1,0.7072,25,0.01));
-fcut = s_g( vslider("[02] FCut [style:knob]",0.1,0,1,0.001)) : si.smoo;
+Q = s_g(vslider("[03] Q [style:knob]",5,0.7072,25,0.01));
+fcut = s_g( vslider("[02] Cut [style:knob]",0.65,0,1,0.001)) : si.smoo;
 subtractive = generator : ve.moogLadder(fcut,Q) : *(gain);
-\end{lstlisting}
 
 La sezione PHASER definisce i parametri dell'effetto phaser: un pulsante bypass,
-e 3 knob per controllare Lfo, Feedback e Delay .
+e 3 knob per controllare Lfo, Feedback e Delay. Più avanti si stabilisce anche
+la sequenza di N filtri all-pass di cui è composto, secondo il modello di Curtis
+Roads \cite{cr96cmt}, un limiter (processore dinamico progettato per imoedire di
+oltrepassare un dato livello di segnale ed evitare la distorsione) e un filtro
+chopper che taglia drasticamente il segnale per evitare ridondanze derivate
+dalla sovrapposizione delle fasi.
 
-\begin{lstlisting}
 // PHASER
 lff = p_g(vslider("[02] Lfo [style:knob]", 0.358, 0, 16, 0.001)) : si.smoo;
 fbk = p_g(vslider("[03] Feedback [style:knob]", -0.689, -0.999, 0.999, 0.001)
@@ -305,25 +299,32 @@ with{
   apseqL(N,d,g) = seq(i,N,allpassL(d,g));
   apseqR(N,d,g) = seq(i,N,allpassR(d,g));
 
-  l= _, (+:apseqL(N,d,g))~*(fb):> _;
-  r=  _, (+:apseqR(N,d,g))~*(-fb):> _;
+  l = _<: _, (+:apseqL(N,d,g))~*(fb):> _;
+  r = _ <: _, (+:apseqR(N,d,g))~*(-fb):> _;
 };
-\end{lstlisting}
+
+// N all-pass custom (min = sharp | max = smooth)
+superstereophaser = phaserLR(4,_,del,lfo,fbk) : stereoshuffle;
+// HARD LIMITER
+chopper(a) = min(a) : max(-a);
+// Chopper amp custom | Filter order custom | Filter freq custom
+hardlimiter = chopper(0.7) : fi.lowpass(12,15000): chopper(0.9) : fi.lowpass6e(20000);
+phchop = superstereophaser : hardlimiter, hardlimiter;
+
 
 Sotto allo slider del MASTER è posizionato uno knob denominato WIDE per
-controllare lo stereo shuffler (termine coniato da Alan Blumlein \cite{ab58},
+controllare lo STEREO SHUFFLER (termine coniato da Alan Blumlein \cite{ab58} ),
 ovvero l'apertura in stereo panning del segnale in uscita del synth; in pratica
 un amplificatore della stereofonia.
 
-\begin{figure}[b]
+\begin{figure}[b]%b=bottom,t=top, h=here
 \begin{center}
 \includegraphics[width=.47\textwidth]{img/mid-side-shuffler.pdf}
-\caption{\textbf{Stereo Shuffler}.}
+\caption{\textbf{Stereo Shuffler}. descrizione.}
 \label{shuff}
 \end{center}
 \end{figure}
 
-\begin{lstlisting}
 // STEREO SHUFFLER
 pot = m_g(vslider("[02] WIDE [style:knob]",100,0,200,0.1)) : /(100) : si.smoo;
 somma = + : /(2);
@@ -331,41 +332,36 @@ diff = - : /(2);
 sdm = somma,diff;
 wide = _, * (sqrt(pot));
 stereoshuffle= _,_ <: sdm : wide <: sdm;
-// N all-pass custom (min = sharp | max = smooth)
-superstereophaser = phaserLR(4,_,del,lfo,fbk) : stereoshuffle;
-// HARD LIMITER
-chopper(a) = min(a) : max(-a);
-// Chopper amp custom | Filter order custom | Filter freq custom
-hardlimiter = chopper(0.7) : fi.lowpass(12,15000): chopper(0.9)
-				: fi.lowpass6e(20000);
-phchop = superstereophaser : hardlimiter, hardlimiter;
-\end{lstlisting}
 
 Infine la sezione MASTER CONTROLS permette di controllare i parametri di uscita
 del suono: uno slider per definire il volume master di uscita, un pulsante Mute,
 due meters per visualizzare anche a livello visivo l'andamento del suono in
 uscita tra i due canali destro e sinistro.
 
-\begin{lstlisting}
 // MASTER CONTROLS
 mute=m_g(*(1-(checkbox("[04] Mute")))) : si.smoo;
-volume = m_g(vslider("[02] VOLUME ",-70,-70,0,0.1)) : ba.db2linear : si.smoo;
+volume = m_g(vslider("[02] VOLUME ",-6,-70,12,0.1)) : ba.db2linear : si.smoo;
 bpc = p_g(checkbox("[01] Bypass"));
 phaser = ba.bypass1to2(bpc,phchop);
 mutes = mute,mute;
 master = (*(volume), *(volume));
 process= subtractive : phaser : master : mutes : meters;
-\end{lstlisting}
 
 
+%\newpage % USE NEWPAGE TO FORCE COLUMNN INTERRUPTION
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
 \section*{CONCLUSIONI}
 
 Confrontarsi ex novo con i linguaggi macchina per creare un prodotto come questo
 synth virtuale, pur nella sua semplicità, è interessante e ha dato spunti
 interessanti per il futuro, chissà non diventi un punto di partenza per
-sperimentare nuove possibilità sonore. Un ultimo cenno sui programmi Atom, Latex
-e Github, prima sconosciuti e che hanno permesso di redigere in forma di
-documento con una struttura di tipo e livello accademico.
+sperimentare nuove possibilità sonore; sicuramente per il compositore
+multimediale è un percorso imprescindibile, utile e ricco di sviluppi.
+Un ultimo cenno sull'utilizzo dei programmi Atom, Latex e Github, prima
+sconosciuti e che hanno permesso di redigere il presente in forma di
+documento con una struttura di tipo e livello accademico, che senz'altro
+verranno utilizzati per future pubblicazioni.
 
 \begin{quote}
 La musica è matematica, \\
