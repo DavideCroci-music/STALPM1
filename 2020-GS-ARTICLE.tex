@@ -308,7 +308,8 @@ superstereophaser = phaserLR(4,_,del,lfo,fbk) : stereoshuffle;
 // HARD LIMITER
 chopper(a) = min(a) : max(-a);
 // Chopper amp custom | Filter order custom | Filter freq custom
-hardlimiter = chopper(0.7) : fi.lowpass(12,15000): chopper(0.9) : fi.lowpass6e(20000);
+hardlimiter = chopper(0.7) : fi.lowpass(12,15000): chopper(0.9) :
+			fi.lowpass6e(20000);
 phchop = superstereophaser : hardlimiter, hardlimiter;
 
 
